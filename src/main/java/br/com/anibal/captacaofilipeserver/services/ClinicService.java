@@ -1,17 +1,12 @@
 package br.com.anibal.captacaofilipeserver.services;
 
-import br.com.anibal.captacaofilipeserver.config.FirebaseService;
 import br.com.anibal.captacaofilipeserver.entities.Clinic;
 import br.com.anibal.captacaofilipeserver.exceptions.StorageException;
-import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.CollectionReference;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.QuerySnapshot;
+import br.com.anibal.captacaofilipeserver.firebase.FirebaseService;
+import br.com.anibal.captacaofilipeserver.repositories.ClinicRepository;
 import com.google.cloud.storage.Acl;
 import com.google.cloud.storage.Blob;
 import com.google.common.io.Files;
-import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,40 +24,33 @@ public class ClinicService {
     @Autowired
     private FirebaseService firebaseService;
 
+    @Autowired
+    private ClinicRepository clinicRepository;
+
     private final String COLLECTION = "clinica";
 
     public List<Clinic> list() throws ExecutionException, InterruptedException {
-        ApiFuture<QuerySnapshot> future = getCollection().get();
-        QuerySnapshot query = future.get();
-        return query.getDocuments().stream()
-                .map(document -> {
-                    Clinic clinic = document.toObject(Clinic.class);
-                    clinic.setId(document.getId());
-                    return clinic;
-                })
-                .collect(Collectors.toList());
+        return clinicRepository.list();
     }
 
-    private Clinic find(String id) throws ExecutionException, InterruptedException {
-        ApiFuture<DocumentSnapshot> future = getCollection().document(id).get();
-        DocumentSnapshot document = future.get();
-
-        if (document.exists()) {
-            return document.toObject(Clinic.class);
-        }
-
-        return null;
-    }
-
-    private CollectionReference getCollection() {
-        return FirestoreClient.getFirestore().collection(COLLECTION);
+    public Optional<Clinic> findOne(String id) throws ExecutionException, InterruptedException {
+        return clinicRepository.findOne(id);
     }
 
     public Clinic save(Clinic clinic) throws ExecutionException, InterruptedException {
-        ApiFuture<DocumentReference> futureDocument = getCollection().add(clinic);
-        DocumentReference reference = futureDocument.get();
-        clinic.setId(reference.getId());
-        return clinic;
+        return clinicRepository.save(clinic);
+    }
+
+    public void delete(String id) throws ExecutionException, InterruptedException {
+        Optional<Clinic> deleted = clinicRepository.delete(id);
+
+        if (deleted.isPresent()) {
+            List<String> imagens = deleted.get().getImagens();
+
+            if (imagens != null) {
+                apagarImagens(imagens);
+            }
+        }
     }
 
     public void upload(List<MultipartFile> files, String id) throws ExecutionException, InterruptedException {
@@ -89,22 +77,16 @@ public class ClinicService {
     }
 
     private void updateLinks(List<String> links, String id) throws ExecutionException, InterruptedException {
-        List<String> existingLinks = find(id).getImagens();
-        if (existingLinks  != null) {
-            links.addAll(existingLinks);
+        Optional<Clinic> clinic = findOne(id);
+
+        if (clinic.isPresent()){
+            List<String> existingLinks = clinic.get().getImagens();
+            if (existingLinks  != null) {
+                links.addAll(existingLinks);
+            }
+
+            clinicRepository.updateField(id, "imagens", links);
         }
-
-        getCollection().document(id).update("imagens", links);
-    }
-
-    public void delete(String id) throws ExecutionException, InterruptedException {
-        Clinic clinic = find(id);
-
-        if (clinic.getImagens() != null) {
-            apagarImagens(clinic.getImagens());
-        }
-
-        getCollection().document(id).delete();
     }
 
     private void apagarImagens(List<String> imagens) {
@@ -121,10 +103,5 @@ public class ClinicService {
                 }
             });
         }
-    }
-
-    public Optional<Clinic> get(String id) throws ExecutionException, InterruptedException {
-        Clinic clinic = find(id);
-        return Optional.ofNullable(clinic);
     }
 }

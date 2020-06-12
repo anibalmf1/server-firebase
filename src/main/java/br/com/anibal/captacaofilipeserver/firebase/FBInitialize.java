@@ -1,4 +1,4 @@
-package br.com.anibal.captacaofilipeserver.config;
+package br.com.anibal.captacaofilipeserver.firebase;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;

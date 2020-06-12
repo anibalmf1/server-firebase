@@ -1,12 +1,16 @@
 package br.com.anibal.captacaofilipeserver.entities;
 
+import br.com.anibal.captacaofilipeserver.firebase.Collections;
+import br.com.anibal.captacaofilipeserver.firebase.FBEntity;
+import br.com.anibal.captacaofilipeserver.firebase.FirebaseEntity;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
-public class Clinic {
+@FBEntity(Collections.CLINIC)
+public class Clinic implements FirebaseEntity {
     private String id;
 
     @NotNull

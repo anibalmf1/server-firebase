@@ -1,7 +1,5 @@
 package br.com.anibal.captacaofilipeserver.controller;
 
-import br.com.anibal.captacaofilipeserver.entities.Clinic;
-import br.com.anibal.captacaofilipeserver.services.ClinicService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +10,9 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+
+import br.com.anibal.captacaofilipeserver.entities.Clinic;
+import br.com.anibal.captacaofilipeserver.services.ClinicService;
 
 @RestController
 @RequestMapping(ClinicController.CLINIC_URL)
@@ -30,7 +31,7 @@ public class ClinicController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Clinic> get(@PathVariable String id) throws ExecutionException, InterruptedException {
-        Optional<Clinic> clinic = service.get(id);
+        Optional<Clinic> clinic = service.findOne(id);
 
         return clinic.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

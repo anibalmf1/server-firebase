@@ -16,7 +16,7 @@ import java.util.function.Function;
 public class JwtUtil {
 
     private static final long EXPIRATION_10_HOURS = 1000 * 60 * 60 * 10;
-    private final String SECRET_KEY = "secret for jwt";
+    private final String SECRET_KEY = "SECRETKEYFORTOKEN";
 
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
