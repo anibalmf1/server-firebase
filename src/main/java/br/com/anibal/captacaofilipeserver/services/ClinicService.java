@@ -1,9 +1,5 @@
 package br.com.anibal.captacaofilipeserver.services;
 
-import br.com.anibal.captacaofilipeserver.entities.Clinic;
-import br.com.anibal.captacaofilipeserver.exceptions.StorageException;
-import br.com.anibal.captacaofilipeserver.firebase.FirebaseService;
-import br.com.anibal.captacaofilipeserver.repositories.ClinicRepository;
 import com.google.cloud.storage.Acl;
 import com.google.cloud.storage.Blob;
 import com.google.common.io.Files;
@@ -18,6 +14,11 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import br.com.anibal.captacaofilipeserver.entities.Clinic;
+import br.com.anibal.captacaofilipeserver.exceptions.StorageException;
+import br.com.anibal.captacaofilipeserver.firebase.FirebaseService;
+import br.com.anibal.captacaofilipeserver.repositories.ClinicRepository;
+
 @Service
 public class ClinicService {
 
@@ -26,8 +27,6 @@ public class ClinicService {
 
     @Autowired
     private ClinicRepository clinicRepository;
-
-    private final String COLLECTION = "clinica";
 
     public List<Clinic> list() throws ExecutionException, InterruptedException {
         return clinicRepository.list();

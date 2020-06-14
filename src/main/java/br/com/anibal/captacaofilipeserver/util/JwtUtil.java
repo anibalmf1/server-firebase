@@ -3,10 +3,10 @@ package br.com.anibal.captacaofilipeserver.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +16,9 @@ import java.util.function.Function;
 public class JwtUtil {
 
     private static final long EXPIRATION_10_HOURS = 1000 * 60 * 60 * 10;
-    private final String SECRET_KEY = "SECRETKEYFORTOKEN";
+
+    @Value("${security.jwt.secret}")
+    private String SECRET_KEY;
 
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
